@@ -240,6 +240,9 @@ end
 
 ### Start the vagrant configuration ###
 Vagrant.configure("2") do |config|
+  # fc00::/7 marks the beginning of the reserved unique local IPv6 addresses
+  # that can be assigned to a private network.
+  v6_addr_prefix = "fc00::1"
 
   # Define VM properties for each node (for both virtualbox and
   # libvirt providers).
@@ -255,6 +258,14 @@ Vagrant.configure("2") do |config|
     libvirt.memory = ram_in_MB
     libvirt.cpus = num_cpus
   end
+
+  # This enables the hostmanager plugin which can be used to manage the
+  # 'hosts' file on the guest. More info on the hostmanager can be found
+  # at https://github.com/devopsgroup-io/vagrant-hostmanager.
+  #config.hostmanager.enabled = true
+  # This attribute, when enabled, updates the hosts file of the guests
+  # with the configured private IP information.
+  #config.hostmanager.include_offline = true
 
   config.vm.synced_folder ENV['HOME'], "/vmhost_home/"
 
@@ -294,6 +305,7 @@ Vagrant.configure("2") do |config|
   # Provision Config for each of the nodes
   1.upto(num_nodes) do |num|
     config.vm.define "node#{num}" do |node|
+      ip_addr_v6 = v6_addr_prefix + "#{num}"
       node.vm.box = box_name
       if !(box_version.nil?)
         node.vm.box_version = box_version
@@ -309,6 +321,12 @@ Vagrant.configure("2") do |config|
        node.vm.network :public_network, :bridge => default_bridge, :ip =>  public_ip_base % num
        puts "Public LAN ip : #{public_ip_base % num}"
       else
+        #node.vm.network "forwarded_port", guest:8091, host:9999 + i, guest_ip:ip_addr
+        #node.vm.network "forwarded_port", guest:8091, host:9999 + i, guest_ip:ip_addr
+
+        # Erlang distribution needs FQDNs if IP addresses are not
+        # being used. This attribute helps add an alias in the hosts file.
+
         node.vm.network :private_network, :ip => ip_address % num
         if Vagrant.has_plugin?("landrush")
           puts "Private network (host only) : http://#{hostname % num}:8091/"
