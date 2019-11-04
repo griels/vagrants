@@ -21,7 +21,7 @@ $filename = $splitter[-1]
 
 # Download the Sources
 exec { "couchbase-server-source":
-    command => "/usr/bin/wget $fullUrl --continue",
+    command => "/usr/bin/wget $fullUrl",
     cwd => "/vagrant/",
     creates => "/vagrant/$filename",
     before => Package['couchbase-server'],
