@@ -129,7 +129,7 @@ vulcan_build_num= "4302"
 vulcan_builds =  "#{latest_builds}/vulcan/#{vulcan_build_num}"
 alice_build_num= "2037"
 alice_builds =  "#{latest_builds}/alice/#{alice_build_num}"
-mad_hatter_build_num= "4744"
+mad_hatter_build_num= "4821"
 mad_hatter_builds =  "#{latest_builds}/mad-hatter/#{mad_hatter_build_num}"
 
 couchbase_download_links = {
@@ -315,6 +315,7 @@ Vagrant.configure("2") do |config|
     vb.cpus = num_cpus
     vb.customize ["modifyvm", :id, "--ioapic", "on"]
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "#{vpn}"]
+    vb.customize ["modifyvm", :id, "--cpuexecutioncap", "30"]
     vb.linked_clone = true if Vagrant::VERSION >= "1.8.0"
     vb.destroy_unused_network_interfaces = true
   end
